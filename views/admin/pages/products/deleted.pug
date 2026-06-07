@@ -1,0 +1,106 @@
+extends ../../layouts/default.pug
+include ../../mixins/filter-status.pug
+include ../../mixins/search.pug
+include ../../mixins/pagination.pug
+include ../../mixins/form-change-multi.pug
+include ../../mixins/alert.pug
+
+block main
+  +alert-success(5000)
+  +alert-error(5000)
+
+  h1 Danh sách sản phẩm đã xoá
+
+  .card.mb-3
+    .card-header Bộ lọc và Tìm kiếm
+    .card-body
+      .row
+        .col-6
+          +filter-status(filterStatus)
+        
+        .col-6
+          +search(keyword)
+
+  .card.mb-3
+    .card-header Danh sách
+    .card-body
+      .row
+        .col-8
+          +form-change-multi-2(`${prefixAdmin}/products/change-multi?_method=`)
+      table(
+        class="table table-hover table-sm"
+        checkbox-multi
+      )
+        thead
+          tr
+            th
+              input(type="checkbox" name="checkall")
+            th STT
+            th Hình ảnh
+            th Tiêu đề
+            th Giá
+            th Vị trí
+            th Trạng thái
+            th Hành động
+
+        tbody
+          each item, index in products
+            tr
+              td
+                input(
+                  type="checkbox"
+                  name="id"
+                  value=item.id
+                )
+              td #{index + 1}
+              td
+                img(
+                  src=item.thumbnail
+                  alt=item.title
+                  width="100px"
+                  height="auto"
+                )
+              td #{item.title}
+              td #{item.price}$
+              td
+                div(             
+                  style="width: 40px; text-align: center;"
+                ) #{item.position}
+              td
+                if item.status === "active"
+                  div(
+                    class="badge badge-success"
+                  ) Hoạt động
+                else
+                  div(
+                    class="badge badge-danger"
+                  ) Dừng hoạt động
+              td
+                button(
+                  class="btn btn-warning btn-sm"
+                  data-id=item.id
+                  button-restore
+                ) Khôi phục
+                button(
+                  class="btn btn-danger btn-sm ml-1"
+                  data-id=item.id
+                  button-delete-permanent
+                ) Xóa vĩnh viễn
+  
+  +pagination(pagination)
+
+  form(
+    action=""
+    method="POST"
+    id="form-restore-item"
+    data-path=`${prefixAdmin}/products/restore`
+  )
+
+  form(
+    action=""
+    method="POST"
+    id="form-delete-permanent-item"
+    data-path=`${prefixAdmin}/products/delete-permanently`
+  )
+
+  script(src="/admin/js/product.js")
